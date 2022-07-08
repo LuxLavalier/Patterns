@@ -1,3 +1,15 @@
+var paletteIndex;
+
+
+export function sliderPalette(v) {
+  paletteIndex = floor(v * (palettes.length-1))
+}
+
+export function showNumberPalette() {
+  return paletteIndex
+}
+
+
 var fibonacciToPhysical = [ 0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47, 21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3, 42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24, 63, 34, 14, 53 ]
 
 
@@ -15,8 +27,8 @@ function beatsin88(bpm, low, high) {
 
 var sPseudotime = 0; //was uint16_t modified to be a value between 0 and 1
 // var sLastMillis = 0; //uint16_t
-export var sHue16 = 0; //was uint16_t seems to work fine as-is
-export var ledarray = array(pixelCount*3);
+var sHue16 = 0; //was uint16_t seems to work fine as-is
+var ledarray = array(pixelCount*3);
 
 function colorwaves(deltams, useFibonacciOrder) {
 
@@ -43,14 +55,7 @@ function colorwaves(deltams, useFibonacciOrder) {
 
   for ( var i = 0 ; i < pixelCount; i++) { //uint16_t
     hue16 += hueinc16;
-    var hue8 = hue16 / 256; //uint8_t
-    //this is doing a triangle
-    var h16_128 = hue16 >> 7; //uint16_t
-    if ( h16_128 & 0x100) {
-      hue8 = 255 - (h16_128 >> 1);
-    } else {
-      hue8 = h16_128 >> 1;
-    }
+    var hue8 = triangle(hue16 >>16) * 128
 
     brightnesstheta16  += brightnessthetainc16>>16;
     brightnesstheta16 = mod(brightnesstheta16 + (brightnessthetainc16>>16), 1)
@@ -86,8 +91,6 @@ export function render(index) {
   v = ledarray[index*3+2]
   fastLedPaletteAt(h, palettes[paletteIndex], v * v);
 }
-
-var secondsPerPalette = 5;
 
 function LERP(percent, low, high) {
   return low + percent * (high - low);
@@ -593,5 +596,4 @@ var palettes = [
 
 var physicalToFibonacci = [ 0, 13, 26, 39, 52, 57, 44, 31, 18, 5, 10, 23, 36, 49, 62, 54, 41, 28, 15, 2, 7, 20, 33, 46, 59, 51, 38, 25, 12, 4, 17, 30, 43, 56, 61, 48, 35, 22, 9, 1, 14, 27, 40, 53, 58, 45, 32, 19, 6, 11, 24, 37, 50, 63, 55, 42, 29, 16, 3, 8, 21, 34, 47, 60 ];
 
-var paletteIndex;
 
