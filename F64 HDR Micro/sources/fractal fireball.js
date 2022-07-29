@@ -1,3 +1,5 @@
+// Fractal Fireball pattern by Ben Hencke
+
 var width = 32
 var height = 16
 var iterations = 7
@@ -5,10 +7,7 @@ var scale = .02
 var speed = .5
 var fade = .9
 
-var pixelFade
-
 var skip = 4
-
 
 var pixels = array(width * height)
 var hues = array(width * height)
@@ -17,11 +16,9 @@ export var iter
 
 var w1, t1, w2
 
-
 export var bx, by
 
 function getIndex(x, y) {
-  
   var res = floor(x*width) + floor(y*height)*width
   if (x < 0 || x > 1 || y < 0 || y  > 1 || res < 0 || res > 255) {
     bx = x; by = y
@@ -52,7 +49,6 @@ function f(x, y, a, i) {
   }
 }
 
-
 export function beforeRender(delta) {
   t1 = time(.1 / speed)
   w1 = sin(t1*PI2) * PI2
@@ -60,7 +56,6 @@ export function beforeRender(delta) {
   w3 = sin(time(.5 / speed) * PI2) * PI2
   iter = 0
   
-  pixelFade = delta * fade
   pixels.mutate(p => p*fade)
   f(.5,.5, w3, iterations)
 }

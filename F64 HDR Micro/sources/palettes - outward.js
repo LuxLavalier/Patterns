@@ -1,3 +1,5 @@
+// Outward Moving Palettes pattern by Jason Coon and Ben Hencke
+
 var secondsPerPalette = 5;
 var moveSpeed = .04
 var transition = 0.2
@@ -18,7 +20,6 @@ export function sliderTransitionTime(v) {
 export function toggleShimmer(v) {
   shimmer = v
 }
-
 
 function LERP(percent, low, high) {
   return low + percent * (high - low);

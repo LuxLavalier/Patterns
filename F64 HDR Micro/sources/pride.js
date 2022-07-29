@@ -1,9 +1,12 @@
+// Pride pattern
+// based on Pride2015 by Mark Kriegsman: https://gist.github.com/kriegsman/964de772d64c502760e5
+// modified by Ben Hencke to run on Pixelblaze
+
 var fibonacciToPhysical = [ 0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47, 21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3, 42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24, 63, 34, 14, 53 ]
 
-
-//       beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
-//                    rises and falls in a sine wave, 'BPM' times per minute,
-//                    between the values of 'low' and 'high'.
+// beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
+// rises and falls in a sine wave, 'BPM' times per minute,
+// between the values of 'low' and 'high'.
 function beatsin8(bpm, low, high) {
   return wave(time(0.91552734375/bpm)) * (high - low) + low
 }
@@ -17,8 +20,7 @@ var sPseudotime = 0; //was uint16_t modified to be a value between 0 and 1
 export var sHue16 = 0; //was uint16_t seems to work fine as-is
 export var ledarray = array(pixelCount*3);
 
-function colorwaves(deltams, useFibonacciOrder) {
-
+function pride(deltams, useFibonacciOrder) {
   // var sat8 = beatsin88( 87, 220, 250); //uint8_t
   // var brightdepth = beatsin88( 341, 96, 224); //uint8_t
   var brightdepth = beatsin88(171, 96, 224); //uint8_t
@@ -77,7 +79,7 @@ function colorwaves(deltams, useFibonacciOrder) {
 }
 
 export function beforeRender(delta) {
-  colorwaves(delta, 1)
+  pride(delta, 1)
 }
 
 export function render(index) {

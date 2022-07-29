@@ -1,3 +1,5 @@
+// Rotating Palettes pattern by Jason Coon and Ben Hencke
+
 var secondsPerPalette = 5;
 
 resetTransform()
