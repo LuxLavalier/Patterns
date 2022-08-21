@@ -1,25 +1,22 @@
-// Outward Moving Palettes pattern by Jason Coon and Ben Hencke
+// Rotating Palettes pattern by Jason Coon and Ben Hencke
 
 var secondsPerPalette = 5;
-var moveSpeed = .04
-var transition = 0.2
-var shimmer = false
 
-export function inputNumberSecondsPerPalette(v) {
-  secondsPerPalette = v
+resetTransform()
+translate3D(-.5, -.5, -.5)
+
+//  Pattern
+export function render2D(index, x, y) {
+  t = time(0.04);
+  // x = t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount;
+  bri = triangle(t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount)
+
+  p = (PI + atan2(y, x)) / PI2 + t
+  paletteIndex = time(secondsPerPalette) * palettes.length;
+  fastLedPaletteAt(p, palettes[paletteIndex], bri*bri);
 }
 
-export function sliderMoveSpeed(v) {
-  moveSpeed = .01 + v*v
-}
-
-export function sliderTransitionTime(v) {
-  transition = v
-}
-
-export function toggleShimmer(v) {
-  shimmer = v
-}
+var physicalToFibonacci = [ 0, 13, 26, 39, 52, 57, 44, 31, 18, 5, 10, 23, 36, 49, 62, 54, 41, 28, 15, 2, 7, 20, 33, 46, 59, 51, 38, 25, 12, 4, 17, 30, 43, 56, 61, 48, 35, 22, 9, 1, 14, 27, 40, 53, 58, 45, 32, 19, 6, 11, 24, 37, 50, 63, 55, 42, 29, 16, 3, 8, 21, 34, 47, 60 ];
 
 function LERP(percent, low, high) {
   return low + percent * (high - low);
@@ -521,33 +518,3 @@ var palettes = [
   BlacK_Red_Magenta_Yellow,
   Blue_Cyan_Yellow,
 ];
-
-
-var physicalToFibonacci = [ 0, 13, 26, 39, 52, 57, 44, 31, 18, 5, 10, 23, 36, 49, 62, 54, 41, 28, 15, 2, 7, 20, 33, 46, 59, 51, 38, 25, 12, 4, 17, 30, 43, 56, 61, 48, 35, 22, 9, 1, 14, 27, 40, 53, 58, 45, 32, 19, 6, 11, 24, 37, 50, 63, 55, 42, 29, 16, 3, 8, 21, 34, 47, 60 ];
-
-var paletteIndex;
-
-//  Pattern
-export function render2D(index, x, y) {
-  t = time(moveSpeed);
-  x = t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount;
-  paletteIndex = time(secondsPerPalette / 65.536 * palettes.length) * palettes.length;
-  
-  bri = 1
-  
-  if (frac(paletteIndex) > (1-transition)) {
-    f = (frac(paletteIndex) - (1-transition)) * (1/transition)
-    if (shimmer) {
-      //shimmer crossfade
-      if (wave(f/2 - .25) > random(1))
-        paletteIndex = mod(paletteIndex + 1, palettes.length)
-    } else {
-      //fade to black
-      bri = wave(f + .25);
-      if (f > .5)
-        paletteIndex = mod(paletteIndex + 1, palettes.length)
-    }
-  }
-
-  fastLedPaletteAt(x, palettes[paletteIndex], bri);
-}

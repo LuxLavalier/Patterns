@@ -1,4 +1,3 @@
-
 // Fibonacci Stars pattern by Jason Coon
 // For Fibonacci256: https://www.tindie.com/products/19429
 // Meant for use in this sketch: https://github.com/jasoncoon/esp8266-fastled-webserver/tree/fibonacci256

@@ -1,5 +1,5 @@
 /*
-Fractal Flower
+fractal flower
 2021 Ben Hencke
 */
 

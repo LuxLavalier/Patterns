@@ -1,5 +1,8 @@
-var paletteIndex;
+// Color Waves pattern
+// based on ColorWavesWithPalettes by Mark Kriegsman: https://gist.github.com/kriegsman/8281905786e8b2632aeb
+// modified by Ben Hencke to run on Pixelblaze
 
+var paletteIndex;
 
 export function sliderPalette(v) {
   paletteIndex = floor(v * (palettes.length-1))
@@ -9,9 +12,7 @@ export function showNumberPalette() {
   return paletteIndex
 }
 
-
 var fibonacciToPhysical = [ 0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47, 21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3, 42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24, 63, 34, 14, 53 ]
-
 
 //       beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
 //                    rises and falls in a sine wave, 'BPM' times per minute,
@@ -24,14 +25,12 @@ function beatsin88(bpm, low, high) {
   return beatsin8(bpm>>8, low, high);
 }
 
-
 var sPseudotime = 0; //was uint16_t modified to be a value between 0 and 1
 // var sLastMillis = 0; //uint16_t
 var sHue16 = 0; //was uint16_t seems to work fine as-is
 var ledarray = array(pixelCount*3);
 
 function colorwaves(deltams, useFibonacciOrder) {
-
   // var sat8 = beatsin88( 87, 220, 250); //uint8_t
   // var brightdepth = beatsin88( 341, 96, 224); //uint8_t
   var brightdepth = beatsin88(171, 96, 224); //uint8_t
@@ -592,8 +591,3 @@ var palettes = [
   BlacK_Red_Magenta_Yellow,
   Blue_Cyan_Yellow,
 ];
-
-
-var physicalToFibonacci = [ 0, 13, 26, 39, 52, 57, 44, 31, 18, 5, 10, 23, 36, 49, 62, 54, 41, 28, 15, 2, 7, 20, 33, 46, 59, 51, 38, 25, 12, 4, 17, 30, 43, 56, 61, 48, 35, 22, 9, 1, 14, 27, 40, 53, 58, 45, 32, 19, 6, 11, 24, 37, 50, 63, 55, 42, 29, 16, 3, 8, 21, 34, 47, 60 ];
-
-
