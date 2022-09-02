@@ -1,22 +1,26 @@
-// Color Waves pattern
-// based on ColorWavesWithPalettes by Mark Kriegsman: https://gist.github.com/kriegsman/8281905786e8b2632aeb
-// modified by Ben Hencke to run on Pixelblaze
+var autoPalette = true;
+var secondsPerPalette = 10;
+var paletteIndex = 0;
 
-var paletteIndex;
+export function toggleAutoPalette(v) {
+  autoPalette = v;
+}
+
+export function inputNumberSecondsPerPalette(v) {
+  secondsPerPalette = v;
+}
 
 export function sliderPalette(v) {
   paletteIndex = floor(v * (palettes.length-1))
 }
 
 export function showNumberPalette() {
-  return paletteIndex
+  return paletteIndex;
 }
 
-var fibonacciToPhysical = [ 0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47, 21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3, 42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24, 63, 34, 14, 53 ]
-
-//       beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
-//                    rises and falls in a sine wave, 'BPM' times per minute,
-//                    between the values of 'low' and 'high'.
+// beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
+// rises and falls in a sine wave, 'BPM' times per minute,
+// between the values of 'low' and 'high'.
 function beatsin8(bpm, low, high) {
   return wave(time(0.91552734375/bpm)) * (high - low) + low
 }
@@ -83,6 +87,8 @@ function colorwaves(deltams, useFibonacciOrder) {
 
 export function beforeRender(delta) {
   colorwaves(delta, 1)
+  if (autoPalette)
+    paletteIndex = time(secondsPerPalette) * palettes.length;
 }
 
 export function render(index) {
@@ -590,4 +596,11 @@ var palettes = [
   BlacK_Magenta_Red,
   BlacK_Red_Magenta_Yellow,
   Blue_Cyan_Yellow,
+];
+
+var fibonacciToPhysical = [
+  0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47,
+  21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3,
+  42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24,
+  63, 34, 14, 53,
 ];
