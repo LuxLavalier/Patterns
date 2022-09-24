@@ -1,6 +1,6 @@
 // Outward Moving Palettes pattern by Jason Coon and Ben Hencke
 
-var secondsPerPalette = 5;
+var secondsPerPalette = 10;
 var moveSpeed = .04
 var transition = 0.2
 var shimmer = false
@@ -33,9 +33,9 @@ function fastLedPaletteAt(v, palette, brightness) {
   for (entryOffset=0;entryOffset<palette.length;entryOffset += 4) {
     if (v <= palette[entryOffset]) {
       //  We're at the beginning of the band.
-      if (v == 0) {
+      if (entryOffset == 0) {
         //special case zero, no lerp
-        rgb(palette[entryOffset+1], palette[entryOffset+2], palette[entryOffset+3]);
+        rgb(palette[entryOffset+1] * brightness, palette[entryOffset+2] * brightness, palette[entryOffset+3] * brightness);
       } else {
         //  We're in the middle of this band, so LERP to find the appropriate shade.
         previousEntryOffset = entryOffset - 4;
