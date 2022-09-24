@@ -14,9 +14,9 @@ export function sliderPalette(v) {
   paletteIndex = floor(v * (palettes.length-1))
 }
 
-export function showNumberPalette() {
-  return paletteIndex;
-}
+// export function showNumberPalette() {
+//   return paletteIndex;
+// }
 
 // beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
 // rises and falls in a sine wave, 'BPM' times per minute,
@@ -109,9 +109,9 @@ function fastLedPaletteAt(v, palette, brightness) {
   for (entryOffset=0;entryOffset<palette.length;entryOffset += 4) {
     if (v <= palette[entryOffset]) {
       //  We're at the beginning of the band.
-      if (v == 0) {
+      if (entryOffset == 0) {
         //special case zero, no lerp
-        rgb(palette[entryOffset+1], palette[entryOffset+2], palette[entryOffset+3]);
+        rgb(palette[entryOffset+1] * brightness, palette[entryOffset+2] * brightness, palette[entryOffset+3] * brightness);
       } else {
         //  We're in the middle of this band, so LERP to find the appropriate shade.
         previousEntryOffset = entryOffset - 4;
