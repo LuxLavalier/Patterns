@@ -1,18 +1,55 @@
 // Rotating Palettes pattern by Jason Coon and Ben Hencke
 
-var secondsPerPalette = 5;
+var secondsPerPalette = 10;
+
+var secondsPerPalette = 10;
+var moveSpeed = .04
+var transition = 0.2
+var shimmer = false
+
+export function inputNumberSecondsPerPalette(v) {
+  secondsPerPalette = v
+}
+
+export function sliderMoveSpeed(v) {
+  moveSpeed = .01 + v*v
+}
+
+export function sliderTransitionTime(v) {
+  transition = v
+}
+
+export function toggleShimmer(v) {
+  shimmer = v
+}
 
 resetTransform()
 translate3D(-.5, -.5, -.5)
 
 //  Pattern
 export function render2D(index, x, y) {
-  t = time(0.04);
+  t = time(moveSpeed);
   // x = t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount;
   bri = triangle(t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount)
 
   p = (PI + atan2(y, x)) / PI2 + t
-  paletteIndex = time(secondsPerPalette) * palettes.length;
+  paletteIndex = time(secondsPerPalette / 65.536 * palettes.length) * palettes.length;
+  bri = 1
+  
+  if (frac(paletteIndex) > (1-transition)) {
+    f = (frac(paletteIndex) - (1-transition)) * (1/transition)
+    if (shimmer) {
+      //shimmer crossfade
+      if (wave(f/2 - .25) > random(1))
+        paletteIndex = mod(paletteIndex + 1, palettes.length)
+    } else {
+      //fade to black
+      bri = wave(f + .25);
+      if (f > .5)
+        paletteIndex = mod(paletteIndex + 1, palettes.length)
+    }
+  }
+
   fastLedPaletteAt(p, palettes[paletteIndex], bri*bri);
 }
 
@@ -30,9 +67,9 @@ function fastLedPaletteAt(v, palette, brightness) {
   for (entryOffset=0;entryOffset<palette.length;entryOffset += 4) {
     if (v <= palette[entryOffset]) {
       //  We're at the beginning of the band.
-      if (v == 0) {
+      if (entryOffset == 0) {
         //special case zero, no lerp
-        rgb(palette[entryOffset+1], palette[entryOffset+2], palette[entryOffset+3]);
+        rgb(palette[entryOffset+1] * brightness, palette[entryOffset+2] * brightness, palette[entryOffset+3] * brightness);
       } else {
         //  We're in the middle of this band, so LERP to find the appropriate shade.
         previousEntryOffset = entryOffset - 4;
