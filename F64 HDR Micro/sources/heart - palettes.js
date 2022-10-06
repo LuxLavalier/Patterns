@@ -1,24 +1,139 @@
-// Outward Moving Palettes pattern by Jason Coon and Ben Hencke
+// Beating heart pattern. The heart shape is formed by a square turned 45 degees to form a \"diamond\" which is
+// the base of the heart. Two semi-circles connect to the upper two sides of the \"diamond\" for the rounded heart
+// portion. Depending on your resolution, you may want to play with the anti-aliasing distance to improve the 
+// definition and appearance of the heart's outline.
+// 
+// Debra Ansell (GeekMomProejcts) 8/18/2022
+
+// Ratio of the height of the heart to the length of one side of the diamond inside it
+// length of one side of the diamond is also the diameter of the circle
+var ratio = (0.5 + 3*sqrt(2)/4)
+
+// Precompute
+var sqr2_2 = sqrt(2)/2
+
+export var delta = 0.05         // Max antialiasing distance
+export var height = 0.8         // Height of heart in world units
+export var xpos = 0.5           // x position of the bottom tip of the heart
+export var ypos = (1-height)/2  // y position of the heart's tip for it to be centered vertically
+export var L = height/ratio     // Length of a side of the diagonal square forming the bottom of the heart
+export var Lv = L*sqr2_2        // Half the vertical height of the \"diamond\"
+
+var flip = true
+export function toggleFlip(value) { flip = value }
+
+var style = 3
+export function triggerUpward() { style = 0 }
+export function triggerDownward() { style = 1 }
+export function triggerInward() { style = 2 }
+export function triggerOutward() { style = 3 }
+export function triggerClockwise() { style = 4 }
+export function triggerCounterClockwise() { style = 5 }
+
+var autoPalette = true;
+export function toggleAutoPalette(v) {
+  autoPalette = v;
+}
 
 var secondsPerPalette = 10;
-var moveSpeed = .04
-var transition = 0.2
-var shimmer = false
-
 export function inputNumberSecondsPerPalette(v) {
   secondsPerPalette = v
 }
 
+export var paletteIndex = 0;
+export function sliderPalette(v) {
+  paletteIndex = floor(v * (palettes.length-1))
+}
+
+export var moveSpeed = .04
 export function sliderMoveSpeed(v) {
   moveSpeed = .01 + v*v
 }
 
-export function sliderTransitionTime(v) {
-  transition = v
+export function beforeRender(delta) {
+  t1 = time(moveSpeed);
+
+  height = 0.5 + 0.3*sin(t1*PI)           // Vary the heart's size with time to make it \"beat\"
+  L = height/ratio
+  Lv = L*sqr2_2
+  xc = Lv/2                               // (xc,yc) are coordinates of the center of the circular part of the heart
+  yc = 3*Lv/2    
+  ypos = 0.5 + height/2                       
+  xpos = 0.5
+  // Uncommenting the code below will cause the position of the heart to move around with time
+  //t2 = time(.035)
+  //t3 = time(.057)
+  //ypos = 0.45 + height/2 + 0.05*wave(t3)
+  //xpos = 0.3 + 0.2*wave(t2) + 0.2*wave(t3)
+  
+  if (autoPalette)
+    paletteIndex = time(secondsPerPalette) * palettes.length;
 }
 
-export function toggleShimmer(v) {
-  shimmer = v
+// The position of the bottom heart point is (x0,y0)
+// Heart height and x0, y0 are given in world units
+export function drawHeart(x, y, x0, y0, height, index) {
+  v = 0                     // Intensity of the pixel
+  xn = abs(x - x0)          // Take advantage of symmetry - only compute half of heart
+  yn = y0 - y               // Remove y offset of heart for computations
+  if (yn < Lv) {            // This portion of the heart is in the bottom half of the \"diamond\"
+    if (xn < yn) {          // Point is inside the heart if it falls inside the line \"y=x\"
+      v = 1
+    } else {                // Check to see if we are close enough for anti aliasing
+      d = (xn - yn)*sqr2_2  // Perpendicular distance to line x = y (makes a (90,45,45) triangle)
+      if (d < delta) {      // Inside anti-aliasing distance of the straight portion of heart
+        v = 1-d/delta       // Pixel intensity decreases with distance  
+      }
+    }
+  } else {                  // Inside the curved portion of the heart
+    yd = abs(yn - yc)       // Vertical distance from center of the circle
+    if (yn < 2*Lv) {        // This portion of the heart is below the inverted point
+      if (xn < Lv/2 + sqrt(L*L/4 - yd*yd)) {
+        v = 1
+      }
+    } else {                // This portion of the heart is above the inverted point
+      xd = abs(xn - xc)     // Horizontal distance to center of the circular part of the heart 
+      if (xd < sqrt(L*L/4 - yd*yd)) {
+        v = 1
+      }      
+    }
+    if (v == 0) {                       // Anti alias the curved part of the heart  
+      d = hypot(xn - xc, yn - yc) - L/2 // Distance from circle forming curved heart boundary
+      if (d < delta) {
+        v = 1-d/delta                   // Pixel intensity decreases with distance
+      }
+    }
+  }
+
+  var h = 0;
+
+  if (style === 0) // upward
+    h = y + t1
+  else if (style === 1) // downward
+    h = y - t1
+  else if (style === 2) // inward
+    h = hypot(x - .5, y - .5) + t1
+  else if (style === 3) // outward
+    h = hypot(x - .5, y - .5) - t1
+  else { // rotating
+    x1 = (x - .5) * 2
+    y1 = (y - .5) * 2
+    dist = sqrt(x1 * x1 + y1 * y1)
+    angle = (atan2(y1, x1) + PI) / PI / 2
+    if (style === 4) // clockwise
+      h = angle + t1
+    else // counter-clockwise
+      h = angle - t1
+  }
+
+  fastLedPaletteAt(h, palettes[paletteIndex], v * v);
+}
+
+export function render2D(index, x, y) {
+  if (flip)
+    drawHeart(x, 1-y, xpos, ypos, height, index)
+  else
+    drawHeart(x, y, xpos, ypos, height, index)
 }
 
 function LERP(percent, low, high) {
@@ -522,32 +637,4 @@ var palettes = [
   Blue_Cyan_Yellow,
 ];
 
-
 var physicalToFibonacci = [ 0, 13, 26, 39, 52, 57, 44, 31, 18, 5, 10, 23, 36, 49, 62, 54, 41, 28, 15, 2, 7, 20, 33, 46, 59, 51, 38, 25, 12, 4, 17, 30, 43, 56, 61, 48, 35, 22, 9, 1, 14, 27, 40, 53, 58, 45, 32, 19, 6, 11, 24, 37, 50, 63, 55, 42, 29, 16, 3, 8, 21, 34, 47, 60 ];
-
-var paletteIndex;
-
-//  Pattern
-export function render2D(index, x, y) {
-  t = time(moveSpeed);
-  x = t + physicalToFibonacci[(pixelCount - 1) - index] / pixelCount;
-  paletteIndex = time(secondsPerPalette / 65.536 * palettes.length) * palettes.length;
-  
-  bri = 1
-  
-  if (frac(paletteIndex) > (1-transition)) {
-    f = (frac(paletteIndex) - (1-transition)) * (1/transition)
-    if (shimmer) {
-      //shimmer crossfade
-      if (wave(f/2 - .25) > random(1))
-        paletteIndex = mod(paletteIndex + 1, palettes.length)
-    } else {
-      //fade to black
-      bri = wave(f + .25);
-      if (f > .5)
-        paletteIndex = mod(paletteIndex + 1, palettes.length)
-    }
-  }
-
-  fastLedPaletteAt(x, palettes[paletteIndex], bri);
-}
