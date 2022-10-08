@@ -12,11 +12,27 @@ export function inputNumberSecondsPerPalette(v) {
 
 export function sliderPalette(v) {
   paletteIndex = floor(v * (palettes.length-1))
+  setPalette(palettes[paletteIndex]);
 }
 
-// export function showNumberPalette() {
-//   return paletteIndex;
-// }
+export function showNumberPalette() {
+  return paletteIndex;
+}
+
+export function beforeRender(delta) {
+  if (autoPalette) {
+    paletteIndex = time(secondsPerPalette) * palettes.length;
+    setPalette(palettes[paletteIndex]);
+  }
+  
+  colorwaves(delta, 1)
+}
+
+export function render(index) {
+  h = ledarray[index*3]
+  v = ledarray[index*3+2]
+  paint(h, v * v);
+}
 
 // beatsin8( BPM, uint8_t low, uint8_t high) returns an 8-bit value that
 // rises and falls in a sine wave, 'BPM' times per minute,
@@ -82,46 +98,6 @@ function colorwaves(deltams, useFibonacciOrder) {
     //TODO palletes, blending in RGB. For now use the 3 byte pixel for hue and value
     ledarray[pixelnumber*3] = hue8 / 128;
     ledarray[pixelnumber*3 + 2] = bri8;
-  }
-}
-
-export function beforeRender(delta) {
-  colorwaves(delta, 1)
-  if (autoPalette)
-    paletteIndex = time(secondsPerPalette) * palettes.length;
-}
-
-export function render(index) {
-  h = ledarray[index*3]
-  v = ledarray[index*3+2]
-  fastLedPaletteAt(h, palettes[paletteIndex], v * v);
-}
-
-function LERP(percent, low, high) {
-  return low + percent * (high - low);
-}
-
-//  A palette is a variable number of bands, each containing a startIndex, R, G, and B component.
-function fastLedPaletteAt(v, palette, brightness) {
-  var paletteSize, scale, entryOffset, previousEntryOffset
-  paletteSize = floor(palette.length/4)
-  v = mod(v, 1);
-  for (entryOffset=0;entryOffset<palette.length;entryOffset += 4) {
-    if (v <= palette[entryOffset]) {
-      //  We're at the beginning of the band.
-      if (entryOffset == 0) {
-        //special case zero, no lerp
-        rgb(palette[entryOffset+1] * brightness, palette[entryOffset+2] * brightness, palette[entryOffset+3] * brightness);
-      } else {
-        //  We're in the middle of this band, so LERP to find the appropriate shade.
-        previousEntryOffset = entryOffset - 4;
-        scale = (v - palette[previousEntryOffset]) / (palette[entryOffset] - palette[previousEntryOffset]);
-        rgb((LERP(scale, palette[previousEntryOffset+1], palette[entryOffset+1])) * brightness,
-            (LERP(scale, palette[previousEntryOffset+2], palette[entryOffset+2])) * brightness,
-            (LERP(scale, palette[previousEntryOffset+3], palette[entryOffset+3])) * brightness);
-      }
-      break;
-    }
   }
 }
 
@@ -598,9 +574,4 @@ var palettes = [
   Blue_Cyan_Yellow,
 ];
 
-var fibonacciToPhysical = [
-  0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47,
-  21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3,
-  42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24,
-  63, 34, 14, 53,
-];
+var fibonacciToPhysical = [ 0, 39, 19, 58, 29, 9, 48, 20, 59, 38, 10, 49, 28, 1, 40, 18, 57, 30, 8, 47, 21, 60, 37, 11, 50, 27, 2, 41, 17, 56, 31, 7, 46, 22, 61, 36, 12, 51, 26, 3, 42, 16, 55, 32, 6, 45, 23, 62, 35, 13, 52, 25, 4, 43, 15, 54, 33, 5, 44, 24, 63, 34, 14, 53 ]
