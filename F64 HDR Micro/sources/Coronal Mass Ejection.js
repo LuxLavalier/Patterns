@@ -2,7 +2,8 @@
 
 var coreSize = 0.1;
 var c2 = coreSize / 4;
-translate(-0.5, -0.5);
+translate(-0.5,-0.5);
+setPerlinWrap(3,256,256)
 
 export function beforeRender(delta) {
   // per-frame animation timers
@@ -13,16 +14,16 @@ export function beforeRender(delta) {
 
 export function render2D(index, x, y) {
   // convert to radial coords
-  tmp = hypot(x, y); x = atan2(y, x); y = tmp;  
+  tmp = hypot(x,y); x = (atan2(y,x)) / PI*3; y = tmp;  
   
   // generate noise field 
-  v = 1 - perlinTurbulence(x, y - noiseYTime, noiseTime, 1.5, .25, 3)
+  v = 1-perlinTurbulence(x,y - noiseYTime,noiseTime,1.5,.25,3)
   
   // convert noise field to discrete radial "flares"
-  v = max(smoothstep(0.675, 1, v),(1 - ((y * v) - c2) / coreSize));  
+  v = max(smoothstep(0.675,1,v),(1-((y*v)-c2)/coreSize));  
   v = v * v * v;    
 
   // draw star + stellar flares, always white hot at center
   // occasionally throwing off super hot flare bits
-  hsv(t1 - (0.125 * v), 6.5 * y - v, v);
+  hsv(t1 - (0.125*v),6.5*y-v,v);
 }
